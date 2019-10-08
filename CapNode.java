@@ -16,14 +16,15 @@ import graph.CapEdge;
  */
 
 public class CapNode {
-	private int num;
+	private int num;  //node ID
 	private HashSet<CapEdge> nodeedges;
-	private String color;
+	private String color;  // "white" = uncovered, "grey" = covered, "black" = member of dom. set
 	
 	// default CapNode constructor
 	public CapNode(int num) {
 		this.num = num;
 		nodeedges = new HashSet<CapEdge>();
+		this.color = "white";
 	}
 	// get num (i.e. node id)
 	public int getNum() {
@@ -63,42 +64,42 @@ public class CapNode {
 	// get white to points from edges of this node
 	// (and itself if it's white)
 	public List<Integer> getWhites() {
-		List<Integer> white = new ArrayList<Integer>();
+		List<Integer> whites = new ArrayList<Integer>();
 		for (CapEdge ce : getEdges()) {
-			if (ce.getToNode().getColor() == "white") {
-				white.add(ce.getToPoint());
+			if (ce.getToNode().getColor().equals("white")) {
+				whites.add(ce.getToPoint());
 			}	
 		}
-		if (this.color == "white") {
-			white.add(this.num);
+		if (this.getColor().equals("white")) {
+			whites.add(this.num);
 		}
-		return white;
+		return whites;
 	}
 	// get white to points from edges of this node
 	// within 2 nodes and itself if it's white
-	public List<Integer> getWithin2Whites() {
-		List<Integer> white = new ArrayList<Integer>();
+	/*public List<Integer> getWithin2Whites() {
+		List<Integer> whites = new ArrayList<Integer>();
 		for (CapEdge ce : getEdges()) {
-			if (ce.getToNode().getColor() == "white") {
-				white.add(ce.getToPoint());
+			if (ce.getToNode().getColor().equals("white")) {
+				whites.add(ce.getToPoint());
 			}
 			for (CapEdge ce2 : ce.getToNode().getEdges()) {
-				if (ce2.getToNode().getColor() == "white" && !white.contains(ce2.getToNode().getNum())) {
-					white.add(ce2.getToPoint());
+				if (ce2.getToNode().getColor().equals("white") && !whites.contains(ce2.getToNode().getNum())) {
+					whites.add(ce2.getToPoint());
 				}
 			}
 		}
 		// I don't think I need this as this' neighbors' neighbor contains this
-		if (this.color == "white" && !white.contains(this.num)) {
-			white.add(this.num);
+		if (this.getColor().equals("white") && !whites.contains(this.num)) {
+			whites.add(this.num);
 		}
-		return white;
-	}
-	// make neighbors grey, i.e. covered
-	public void makeNeighborsGrey() {
+		return whites;
+	}*/
+	// make white neighbors grey, i.e. covered
+	public void makeWhiteNeighborsGrey() {
 		for (CapEdge ce : getEdges()) {
 			CapNode node = ce.getToNode();
-			if (node.getColor() != "black" || node.getColor() != "gray") {
+			if (node.getColor().equals("white")) {
 				node.setColor("grey");
 			}
 		}
