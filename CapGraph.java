@@ -18,6 +18,12 @@ import util.GraphLoader;
  * 
  * For the warm up assignment, you must implement your Graph in a class
  * named CapGraph.  Here is the stub file.
+ * 
+ * This is the Capstone Project for Coursera's Object Oriented Java Programming: 
+ * Data Structures and Beyond Specialization.
+ * 
+ * For the capstone I chose to research approximations to the Minimum Dominating Set
+ * problem using a sample twitter network. 
  *
  */
 public class CapGraph implements Graph {
@@ -28,13 +34,20 @@ public class CapGraph implements Graph {
 	private HashSet<CapEdge> edges;
 		
 	/** 
-	 * Create a new empty MapGraph 
+	 * Create a new empty CapGraph 
 	 */
 	public CapGraph() {
 		vertices = new HashMap<Integer, CapNode>();
 		edges = new HashSet<CapEdge>();
 	}
-
+	
+	public int getNumVertices() {
+		return vertices.size();
+	}
+	
+	public int getNumEdges() {
+		return edges.size();
+	}
 
 	/* (non-Javadoc)
 	 * @see graph.Graph#addVertex(int)
@@ -97,7 +110,7 @@ public class CapGraph implements Graph {
 		CapGraph egonet = new CapGraph();
 		egonet.addVertex(center);
 		
-		// add all neighbors of center and edge between them
+		// add all neighbors of center and edges between them
 		for (int num: this.getNeighbors(center)) {
 			egonet.addVertex(num);
 			egonet.addEdge(center, num);
@@ -113,6 +126,7 @@ public class CapGraph implements Graph {
 		}	
 		return egonet;
 	}
+	
 
 	/* (non-Javadoc)
 	 * @see graph.Graph#getSCCs()
@@ -231,6 +245,8 @@ public class CapGraph implements Graph {
 		return neighbors;
 	}
 	
+	
+	
 	// gets white neighbors and also itself if white
 	public List<Integer> getWhiteNeighbors(int v) {
 		List<Integer> neighbors = getNeighbors(v);
@@ -308,7 +324,7 @@ public class CapGraph implements Graph {
 	}
 	
 	public List<Integer> getFastGreedyDomSet() {	
-		System.out.println("starting Fast Greedy Dom Set");
+		System.out.println("Starting Fast Greedy Dom Set ... ");
 		
 		// mark all vertices as "uncovered", i.e. white
 		initializeVerticesToWhite();
@@ -519,7 +535,7 @@ public class CapGraph implements Graph {
 	}
 	
 	public List<Integer> getRegularGreedyDomSet() {	
-		System.out.println("starting Greedy Dom Set");
+		System.out.println("Starting Greedy Dom Set ... ");
 		
 		// mark all vertices as "uncovered", i.e. white
 		initializeVerticesToWhite();
@@ -534,7 +550,7 @@ public class CapGraph implements Graph {
 	}
 	
 	public List<Integer> getVRegularGreedyDomSet() {	
-		System.out.println("starting VRegular Greedy Dom Set");
+		System.out.println("Starting VRegular Greedy Dom Set ... ");
 		
 		// mark all vertices as "uncovered", i.e. white
 		initializeVerticesToWhite();
@@ -605,60 +621,49 @@ public class CapGraph implements Graph {
 	
 	public static void main(String[] args) {
 		long start = System.currentTimeMillis();
-		System.out.print("Making a new CapGraph...");
+		System.out.print("Creating a new CapGraph (Capstone Graph) using twitter_combined.txt ... ");
 		CapGraph firstCap = new CapGraph();
-		System.out.print("DONE. \nLoading the CapGraph...");
 		GraphLoader.loadGraph(firstCap, "data/twitter_combined.txt");
+		// below are datafiles used for testing:
 		//GraphLoader.loadGraph(firstCap, "data/scc/test_1.txt");
 		//GraphLoader.loadGraph(firstCap, "data/example_test_graph.txt");
 		//GraphLoader.loadGraph(firstCap, "data/small_test_graph.txt");
 		//GraphLoader.loadGraph(firstCap, "data/facebook_ucsd.txt");
 		System.out.println("DONE.");
 		long end = System.currentTimeMillis();
-		System.out.println((end-start)/1000);
 	
-		//System.out.println("NumVertices: " + firstCap.getNumVertices());
-		//System.out.println("NumEdges: " + firstCap.getNumEdges());
-		System.out.println("exporting graph");
-		start = System.currentTimeMillis();
-		HashMap<Integer, HashSet<Integer>> hs = firstCap.exportGraph();
-		/*for (int key: hs.keySet()) {
-			System.out.print(key + ": ");
-			for (int x: hs.get(key)) {
-				System.out.print(x + " ");
-			}
-			System.out.println();
-		}*/
-		System.out.println("num vertices=" + hs.size());
-		int count = 0;
-		for (HashSet<Integer> hsi : hs.values()) {
-			for (int i : hsi) {
-				count++;
-			}
-		}
-		System.out.println("num edges=" + count);
-		end = System.currentTimeMillis();
-		System.out.println((end-start)/1000);
+		System.out.println("Time: " + (end-start) + " milliseconds");
+		System.out.println("Number of vertices: " + firstCap.getNumVertices());
+		System.out.println("Number of edges: " + firstCap.getNumEdges());
+		System.out.println();
 		
-		/*start = System.currentTimeMillis();
+		
+		start = System.currentTimeMillis();
 		List<Integer> FGDS = firstCap.getFastGreedyDomSet();
+		System.out.println("DONE.");
 		end = System.currentTimeMillis();
-		System.out.println("FastGreedy time:"  + (end-start)/1000);
+		System.out.println("FastGreedy time: "  + (end-start) + " milliseconds");
 		System.out.println("FastGreedy size: " + FGDS.size());
+		System.out.println();
+		
 		
 		start = System.currentTimeMillis();
 		List<Integer> GDS = firstCap.getRegularGreedyDomSet();
+		System.out.println("DONE.");
 		end = System.currentTimeMillis();
-		System.out.println("RegularGreedy time:"  + (end-start)/1000);
+		System.out.println("RegularGreedy time: "  + (end-start) + " milliseconds");
 		System.out.println("RegularGreedy size: " + GDS.size());
+		System.out.println();
 		
 		start = System.currentTimeMillis();
 		List<Integer> VGDS = firstCap.getVRegularGreedyDomSet();
+		System.out.println("DONE.");
 		end = System.currentTimeMillis();
-		System.out.println("VRegularGreedy time:"  + (end-start)/1000);
-		System.out.println("VRegularGreedy size: " + VGDS.size());*/
+		System.out.println("VRegularGreedy time: "  + (end-start) + " milliseconds");
+		System.out.println("VRegularGreedy size: " + VGDS.size());
+		System.out.println();
 		
-		start = System.currentTimeMillis();
+		/*start = System.currentTimeMillis();
 		List<Integer> RG1DS = firstCap.getRandom1GreedyDomSet();
 		end = System.currentTimeMillis();
 		System.out.println("RandomGreedy time:"  + (end-start)/1000);
@@ -668,7 +673,7 @@ public class CapGraph implements Graph {
 		List<Integer> RG2DS = firstCap.getRandom2GreedyDomSet();
 		end = System.currentTimeMillis();
 		System.out.println("RandomGreedy time:"  + (end-start)/1000);
-		System.out.println("RandomGreedy size: " + RG2DS.size());
+		System.out.println("RandomGreedy size: " + RG2DS.size());*/
 		
 		
 		/*for (int i: GDS) {
