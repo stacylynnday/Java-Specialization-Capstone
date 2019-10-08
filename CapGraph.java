@@ -14,10 +14,10 @@ import graph.CapNode;
 import util.GraphLoader;
 
 /**
- * @author Stacy Day.
+ * @author Stacy Lynn Day
  * 
- * For the warm up assignment, you must implement your Graph in a class
- * named CapGraph.  Here is the stub file.
+ * (For the warm up assignment, you must implement your Graph in a class
+ * named CapGraph.  Here is the stub file.)
  * 
  * This is the Capstone Project for Coursera's Object Oriented Java Programming: 
  * Data Structures and Beyond Specialization.
@@ -96,6 +96,28 @@ public class CapGraph implements Graph {
 		}
 		return null;
 	}
+	
+	public List<Integer> getNeighbors(int v) {
+		List<Integer> neighbors = vertices.get(v).getTo();
+		return neighbors;
+	}
+	
+	/* (non-Javadoc)
+	 * @see graph.Graph#exportGraph()
+	 */
+	@Override
+	public HashMap<Integer, HashSet<Integer>> exportGraph() {
+		// TODO Auto-generated method stub
+		HashMap<Integer, HashSet<Integer>> hm = new HashMap<Integer, HashSet<Integer>>();
+		for (int key : vertices.keySet()) {
+			HashSet<Integer> hs = new HashSet<Integer>();
+			for (int x : vertices.get(key).getTo()) {
+				hs.add(x);
+			}
+			hm.put(key, hs);
+		}
+		return hm;
+	}
 
 	/* (non-Javadoc)
 	 * @see graph.Graph#getEgonet(int)
@@ -104,7 +126,7 @@ public class CapGraph implements Graph {
 	public Graph getEgonet(int center) {
 		// TODO Auto-generated method stub
 		if (!this.vertices.containsKey(center)) {
-			System.out.println("This vertice not in graph");
+			//System.out.println("This vertice not in graph");
 			return null;
 		}
 		CapGraph egonet = new CapGraph();
@@ -127,8 +149,8 @@ public class CapGraph implements Graph {
 		return egonet;
 	}
 	
-
 	/* (non-Javadoc)
+	 * SCCs = Strongly Connected Components
 	 * @see graph.Graph#getSCCs()
 	 */
 	@Override
@@ -158,11 +180,11 @@ public class CapGraph implements Graph {
 			int v = vertices.pop();
 			// if node hasn't been visited yet, visit it
 			if (!visited.contains(v)) {
-				System.out.println("creating new Graph");
+				//System.out.println("creating new Graph");
 				CapGraph g = new CapGraph();
 				getSCCsHelper_VISIT(transpose, v, visited, g);
 			    // add edges to this graph, then add graph to return list
-			    System.out.println("     Adding Edges");
+			    //System.out.println("     Adding Edges");
 			    for (int vertice: g.vertices.keySet()) {
 			    	for (int x : this.vertices.get(vertice).getTo()) {
 			    		if (g.vertices.containsKey(x)) {
@@ -171,7 +193,7 @@ public class CapGraph implements Graph {
 			    	}
 			    }
 			    // add this graph to sccs (strongly connected components) list
-			    System.out.println("Adding graph to scc list");
+			    //System.out.println("Adding graph to scc list");
 			    sccs.add(g);
 			}
 		}
@@ -183,7 +205,7 @@ public class CapGraph implements Graph {
 	public void getSCCsHelper_VISIT(CapGraph graph, int v, Set<Integer> visited, CapGraph g) {
 			// add v to visited and add v to CapGraph g
 			visited.add(v);
-			System.out.println("     Adding " + v);
+			//System.out.println("     Adding " + v);
 			g.addVertex(v);
 			// if neighbor hasn't been visited, visit it
 			for (int n: graph.getNeighbors(v)) {
@@ -193,7 +215,8 @@ public class CapGraph implements Graph {
 			}
 		}
 	
-	// get the transpose of given graph
+	// get the transpose of given graph 
+	// helper for SCC
 	public CapGraph getTranspose(CapGraph capGraph) {
 		CapGraph transpose = new CapGraph();
 		// add vertices
@@ -225,10 +248,10 @@ public class CapGraph implements Graph {
 		return finished;
 	}
 	
-	// Depth first search helper method
+	// DFS helper method
 	public void DFS_VISIT(CapGraph graph, int v, Set<Integer> visited, Stack<Integer> finished) {
 		// add v to visited
-		System.out.println("adding v=" + v + " to visited stack");
+		//System.out.println("adding v=" + v + " to visited stack");
 		visited.add(v);
 		// if neighbor hasn't been visited, visit it
 		for (int n: graph.getNeighbors(v)) {
@@ -240,104 +263,209 @@ public class CapGraph implements Graph {
 		finished.push(v);
 	}
 	
-	public List<Integer> getNeighbors(int v) {
-		List<Integer> neighbors = vertices.get(v).getTo();
-		return neighbors;
-	}
-	
-	
-	
+
+	/* For Minimum Dominating Set Approximations:
+	 * white vertices are uncovered.
+	 * grey vertices are covered.
+	 * black vertices are covered and part of the MDS.
+	 */
 	// gets white neighbors and also itself if white
 	public List<Integer> getWhiteNeighbors(int v) {
 		List<Integer> neighbors = getNeighbors(v);
 		List<Integer> whiteNeighbors = new ArrayList<Integer>();
 		for (int n : neighbors) {
-			if (vertices.get(n).getColor() == "white") {
+			if (vertices.get(n).getColor().equals("white")) {
 				whiteNeighbors.add(n);
 			}
 		}
 		// add itself if it's white
-		if (vertices.get(v).getColor() == "white") {
+		if (vertices.get(v).getColor().equals("white")) {
 			whiteNeighbors.add(v);
 		}
 		return whiteNeighbors;
 	}
 	
 	// helper method for Dominating Sets
-	public void initializeVerticesToWhite() {
+	public void initializeAllVerticesToWhite() {
 		// mark all vertices as "uncovered", i.e. white
-		for (Integer v : vertices.keySet()) {
+		for (int v : vertices.keySet()) {
 			CapNode node = vertices.get(v);
 			node.setColor("white");
 		}
 	}
 	
 	// helper method for Dominating Sets
-	public Set<Integer> getInitialWhiteSet() {
+	// gets IDs of all white nodes
+	public Set<Integer> getWhiteSet() {
 		Set<Integer> whiteSet = new HashSet<Integer>();
 		for (int v : vertices.keySet()) {
-			whiteSet.add(v);
+			if (vertices.get(v).getColor().equals("white")) {
+				whiteSet.add(v);
+			}
 		}
 		return whiteSet;
-	}
-	
-	// helper method for Dom Sets
-	public List<Integer> getInitialRandomList() {
-		List<Integer> randomSet = new ArrayList<Integer>();
-		for (int v : vertices.keySet()) {
-			randomSet.add(v);
-		}
-		return randomSet;
 	}	
 	
 	// helper method for fastGreedyDomSet
 	public List<Integer> getFastGreedyDOM(Set<Integer> whiteSet)  {
-		// initialize an empty dominant set
+		// initialize an empty dominant set which will contain black vertices
 		List<Integer> greedyDomSet = new ArrayList<Integer>();
-		List<Integer> coveredSet = new ArrayList<Integer>();
 		
 		// create and initialize priority queue
 		PriorityQueue<CapNode> pq=
 					new PriorityQueue<CapNode>((a,b) -> b.getTo().size() - a.getTo().size());
-		for (int v : vertices.keySet()) {
+		for (int v : whiteSet) {
 			pq.add(vertices.get(v));	
 		}
 			
-		while (!pq.isEmpty() && (coveredSet.size() < vertices.size()))	 {
-			// find the set of vertices, v, which would cover all vertices
+		while (!pq.isEmpty()) {
+			// get top node and if white, change to black,
+			// add to greedyDomSet and change all white neighbors to grey
 			CapNode node = pq.poll();
 			
-			// add neighbors and itself to coveredSet
-			if (!coveredSet.contains(node.getNum())) {
-				coveredSet.add(node.getNum());
+			if (node.getColor().equals("white")) {
+				node.setColor("black");
+				greedyDomSet.add(node.getNum());
+				
+				node.makeWhiteNeighborsGrey(); 
+					
 			}
-			for (int v: getNeighbors(node.getNum())) {
-				if (!coveredSet.contains(v)) {
-					coveredSet.add(v);
-				}
-			}	
-			
-			// add v to the dominant set
-			greedyDomSet.add(node.getNum());
 		}
 		return greedyDomSet;
 	}
 	
 	public List<Integer> getFastGreedyDomSet() {	
-		System.out.println("Starting Fast Greedy Dom Set ... ");
 		
-		// mark all vertices as "uncovered", i.e. white
-		initializeVerticesToWhite();
+		// mark all vertices as uncovered, i.e. "white"
+		initializeAllVerticesToWhite();
 		
-		// create list of white vertices
+		// get list of white vertices
 		// (initially all vertices are white)
-		Set<Integer> whiteSet = getInitialWhiteSet();
+		Set<Integer> whiteSet = getWhiteSet();
 		
 		// get greedy dominant set
 		List<Integer> fastgreedyDomSet = getFastGreedyDOM(whiteSet);
 		return fastgreedyDomSet;
 	}
 	
+	// helper method for greedyDomSets
+	public List<Integer> getGreedyDOM(Set<Integer> whiteSet)  {
+		// initialize an empty dominant set
+		List<Integer> greedyDomSet = new ArrayList<Integer>();
+		
+		// while there are white vertices
+		// while (!pq.isEmpty()) {
+		while (!whiteSet.isEmpty())	 {
+			// find the vertex, v, which would cover the most uncovered, white, vertices, 
+			// including itself if it's white 
+			
+			// create and initialize priority queue
+			PriorityQueue<CapNode> pq=
+			                new PriorityQueue<CapNode>((a,b) -> b.getWhites().size() - a.getWhites().size());
+			for (int v : vertices.keySet()) {
+				if (!greedyDomSet.contains(v) && (vertices.get(v).getWhites().size() > 0)) {
+					pq.add(vertices.get(v));
+				}	
+			}
+			CapNode node = pq.poll();
+			
+			// add v to the dominant set
+			//System.out.println("adding " + node.getNum() + " to dom set");
+			greedyDomSet.add(node.getNum());
+			// mark that vertex as black and all of its uncovered neighbors as covered, i.e. grey
+			node.setColor("black");
+			node.makeWhiteNeighborsGrey();
+			
+			// remove vertex from whiteSet
+			whiteSet.remove(node.getNum());
+			
+			// remove neighbors from whiteSet
+			for (int v: getNeighbors(node.getNum())) {
+				whiteSet.remove(v);
+			}	
+		}
+		return greedyDomSet;
+	}
+	
+	public List<Integer> getRegularGreedyDomSet() {	
+		//System.out.println("Starting Greedy Dom Set ... ");
+		
+		// mark all vertices as "uncovered", i.e. white
+		initializeAllVerticesToWhite();
+		
+		// create list of white vertices
+		// (initially all vertices are white)
+		Set<Integer> whiteSet = getWhiteSet();
+		
+		// get greedy dominant set
+		List<Integer> greedyDomSet = getGreedyDOM(whiteSet);
+		return greedyDomSet;
+	}
+	
+	public List<Integer> getVRegularGreedyDomSet() {	
+		//System.out.println("Starting VRegular Greedy Dom Set ... ");
+		
+		// mark all vertices as "uncovered", i.e. white
+		initializeAllVerticesToWhite();
+			
+		// create list of white vertices
+		// (initially all vertices are white)
+		Set<Integer> whiteSet = getWhiteSet();
+		
+		List<Integer> greedyDomSet = new ArrayList<Integer>();
+		
+		// find all vertices of degree 1
+		// create and initialize a min heap (i.e. a min priority queue)
+		PriorityQueue<CapNode> pq=
+				new PriorityQueue<CapNode>((a,b) -> a.getWhites().size() - b.getWhites().size());
+		for (int v : vertices.keySet()) {
+			pq.add(vertices.get(v));
+		}
+		
+		// pop nodes that have size = 1 bc they only include themselves and 
+		// hopefully will get covered by another node?
+		while (pq.peek().getWhites().size() == 1) {
+			pq.poll();
+		}
+		
+		while (pq.peek().getWhites().size() == 2) {
+			CapNode node = pq.poll();
+			// System.out.println("Looking at node: " + node.getNum());
+			// add neighbor to dominant set and mark as black
+			List<Integer> neighbors = node.getTo();
+			CapNode neighbor = vertices.get(neighbors.get(0));
+			greedyDomSet.add(neighbor.getNum());
+			// mark that vertex as black and all of its uncovered neighbors as covered, i.e. grey
+			neighbor.setColor("black");
+			neighbor.makeWhiteNeighborsGrey();
+					
+			// remove vertex from whiteSet
+			whiteSet.remove(neighbor.getNum());
+					
+			// remove neighbors from whiteSet
+			for (int v: getNeighbors(neighbor.getNum())) {
+				whiteSet.remove(v);
+			}
+		}	
+			
+		// get greedy dominant set
+		List<Integer> greedyDomSet2 = getGreedyDOM(whiteSet);
+		greedyDomSet.addAll(greedyDomSet2);
+		
+		return greedyDomSet;
+	}
+	
+	// helper method for Dom Sets
+	// gets list of IDs of all nodes
+	public List<Integer> getNodeIDList() {
+		List<Integer> IDList = new ArrayList<Integer>();
+		for (int v : vertices.keySet()) {
+			IDList.add(v);
+		}
+		return IDList;
+	}
+	
+	// TO DO: fix this
 	// helper method for random1GreedyDomSet
 	public List<Integer> getRandom1GreedyDOM(Set<Integer> whiteSet, List<Integer> randomList)  {
 		// initialize an empty dominant set
@@ -382,7 +510,7 @@ public class CapGraph implements Graph {
 				
 			// mark that vertex as black and all of its uncovered neighbors as covered, i.e. grey
 			node.setColor("black");
-			node.makeNeighborsGrey();
+			node.makeWhiteNeighborsGrey();
 				
 			// remove vertex from whiteSet and randomSet
 			whiteSet.remove(node.getNum());
@@ -396,23 +524,25 @@ public class CapGraph implements Graph {
 		return greedyDomSet;
 	}
 	
+	// TO DO: fix this
 	public List<Integer> getRandom1GreedyDomSet() {	
 		System.out.println("starting Random 1 Greedy Dom Set");
 		
 		// mark all vertices as "uncovered", i.e. white
-		initializeVerticesToWhite();
+		initializeAllVerticesToWhite();
 		
 		// create set of white vertices
 		// (initially all vertices are white)
-		Set<Integer> whiteSet = getInitialWhiteSet();
+		Set<Integer> whiteSet = getWhiteSet();
 		// create list to get random vertices, white or gray
-		List<Integer> randomList = getInitialRandomList();
+		List<Integer> randomList = getNodeIDList();
 		
 		// get random greedy dominant set
 		List<Integer> greedyDomSet = getRandom1GreedyDOM(whiteSet, randomList);
 		return greedyDomSet;
 	}
 	
+	// TO DO: fix this
 	// helper method for random1GreedyDomSet
 	public List<Integer> getRandom2GreedyDOM(Set<Integer> whiteSet, List<Integer> randomList)  {
 		// initialize an empty dominant set
@@ -464,7 +594,7 @@ public class CapGraph implements Graph {
 					
 			// mark that vertex as black and all of its uncovered neighbors as covered, i.e. grey
 			node.setColor("black");
-			node.makeNeighborsGrey();
+			node.makeWhiteNeighborsGrey();
 					
 			// remove vertex from whiteSet and randomSet
 			whiteSet.remove(node.getNum());
@@ -478,150 +608,27 @@ public class CapGraph implements Graph {
 		return greedyDomSet;
 	}
 	
+	// TO DO: fix this
 	public List<Integer> getRandom2GreedyDomSet() {	
 		System.out.println("starting Random 2 Greedy Dom Set");
 		
 		// mark all vertices as "uncovered", i.e. white
-		initializeVerticesToWhite();
+		initializeAllVerticesToWhite();
 		
 		// create set of white vertices
 		// (initially all vertices are white)
-		Set<Integer> whiteSet = getInitialWhiteSet();
+		Set<Integer> whiteSet = getWhiteSet();
 		// create list to get random vertices, white or gray
-		List<Integer> randomList = getInitialRandomList();
+		List<Integer> randomList = getNodeIDList();
 		
 		// get random greedy dominant set
 		List<Integer> greedyDomSet = getRandom2GreedyDOM(whiteSet, randomList);
 		return greedyDomSet;
 	}
 	
-	// helper method for greedyDomSets
-	public List<Integer> getGreedyDOM(Set<Integer> whiteSet)  {
-		// initialize an empty dominant set
-		List<Integer> greedyDomSet = new ArrayList<Integer>();
-		
-		// while there are white vertices
-		// while (!pq.isEmpty()) {
-		while (!whiteSet.isEmpty())	 {
-			// find the vertex, v, which would cover the most uncovered, white, vertices, 
-			// including itself if it's white 
-			
-			// create and initialize priority queue
-			PriorityQueue<CapNode> pq=
-			                new PriorityQueue<CapNode>((a,b) -> b.getWhites().size() - a.getWhites().size());
-			for (int v : vertices.keySet()) {
-				if (!greedyDomSet.contains(v) && (vertices.get(v).getWhites().size() > 0)) {
-					pq.add(vertices.get(v));
-				}	
-			}
-			CapNode node = pq.poll();
-			
-			// add v to the dominant set
-			//System.out.println("adding " + node.getNum() + " to dom set");
-			greedyDomSet.add(node.getNum());
-			// mark that vertex as black and all of its uncovered neighbors as covered, i.e. grey
-			node.setColor("black");
-			node.makeNeighborsGrey();
-			
-			// remove vertex from whiteSet
-			whiteSet.remove(node.getNum());
-			
-			// remove neighbors from whiteSet
-			for (int v: getNeighbors(node.getNum())) {
-				whiteSet.remove(v);
-			}	
-		}
-		return greedyDomSet;
-	}
-	
-	public List<Integer> getRegularGreedyDomSet() {	
-		System.out.println("Starting Greedy Dom Set ... ");
-		
-		// mark all vertices as "uncovered", i.e. white
-		initializeVerticesToWhite();
-		
-		// create list of white vertices
-		// (initially all vertices are white)
-		Set<Integer> whiteSet = getInitialWhiteSet();
-		
-		// get greedy dominant set
-		List<Integer> greedyDomSet = getGreedyDOM(whiteSet);
-		return greedyDomSet;
-	}
-	
-	public List<Integer> getVRegularGreedyDomSet() {	
-		System.out.println("Starting VRegular Greedy Dom Set ... ");
-		
-		// mark all vertices as "uncovered", i.e. white
-		initializeVerticesToWhite();
-			
-		// create list of white vertices
-		// (initially all vertices are white)
-		Set<Integer> whiteSet = getInitialWhiteSet();
-		
-		List<Integer> greedyDomSet = new ArrayList<Integer>();
-		
-		// find all vertices of degree 1
-		// create and initialize a min heap (i.e. a min priority queue)
-		PriorityQueue<CapNode> pq=
-				new PriorityQueue<CapNode>((a,b) -> a.getWhites().size() - b.getWhites().size());
-		for (int v : vertices.keySet()) {
-			pq.add(vertices.get(v));
-		}
-		
-		// pop nodes that have size = 1 bc they only include themselves and 
-		// hopefully will get covered by another node?
-		while (pq.peek().getWhites().size() == 1) {
-			pq.poll();
-		}
-		
-		while (pq.peek().getWhites().size() == 2) {
-			CapNode node = pq.poll();
-			// System.out.println("Looking at node: " + node.getNum());
-			// add neighbor to dominant set and mark as black
-			List<Integer> neighbors = node.getTo();
-			CapNode neighbor = vertices.get(neighbors.get(0));
-			greedyDomSet.add(neighbor.getNum());
-			// mark that vertex as black and all of its uncovered neighbors as covered, i.e. grey
-			neighbor.setColor("black");
-			neighbor.makeNeighborsGrey();
-					
-			// remove vertex from whiteSet
-			whiteSet.remove(neighbor.getNum());
-					
-			// remove neighbors from whiteSet
-			for (int v: getNeighbors(neighbor.getNum())) {
-				whiteSet.remove(v);
-			}
-		}	
-			
-		// get greedy dominant set
-		List<Integer> greedyDomSet2 = getGreedyDOM(whiteSet);
-		greedyDomSet.addAll(greedyDomSet2);
-		
-		return greedyDomSet;
-	}
-
-	/* (non-Javadoc)
-	 * @see graph.Graph#exportGraph()
-	 */
-	@Override
-	public HashMap<Integer, HashSet<Integer>> exportGraph() {
-		// TODO Auto-generated method stub
-		HashMap<Integer, HashSet<Integer>> hm = new HashMap<Integer, HashSet<Integer>>();
-		for (int key : vertices.keySet()) {
-			HashSet<Integer> hs = new HashSet<Integer>();
-			for (int x : vertices.get(key).getTo()) {
-				hs.add(x);
-			}
-			hm.put(key, hs);
-		}
-		return hm;
-	}
-	
 	public static void main(String[] args) {
-		long start = System.currentTimeMillis();
 		System.out.print("Creating a new CapGraph (Capstone Graph) using twitter_combined.txt ... ");
+		long start = System.currentTimeMillis();
 		CapGraph firstCap = new CapGraph();
 		GraphLoader.loadGraph(firstCap, "data/twitter_combined.txt");
 		// below are datafiles used for testing:
@@ -629,36 +636,37 @@ public class CapGraph implements Graph {
 		//GraphLoader.loadGraph(firstCap, "data/example_test_graph.txt");
 		//GraphLoader.loadGraph(firstCap, "data/small_test_graph.txt");
 		//GraphLoader.loadGraph(firstCap, "data/facebook_ucsd.txt");
-		System.out.println("DONE.");
 		long end = System.currentTimeMillis();
-	
-		System.out.println("Time: " + (end-start) + " milliseconds");
+		System.out.println("DONE.");
+	    System.out.println("Time: " + (end-start) + " milliseconds");
 		System.out.println("Number of vertices: " + firstCap.getNumVertices());
 		System.out.println("Number of edges: " + firstCap.getNumEdges());
 		System.out.println();
 		
 		
+		System.out.print("Starting Fast Greedy Dom. Set ... ");
 		start = System.currentTimeMillis();
 		List<Integer> FGDS = firstCap.getFastGreedyDomSet();
-		System.out.println("DONE.");
 		end = System.currentTimeMillis();
+		System.out.println("DONE.");
 		System.out.println("FastGreedy time: "  + (end-start) + " milliseconds");
 		System.out.println("FastGreedy size: " + FGDS.size());
 		System.out.println();
 		
-		
+		System.out.print("Starting Regular Greedy Dom. Set ... ");
 		start = System.currentTimeMillis();
 		List<Integer> GDS = firstCap.getRegularGreedyDomSet();
-		System.out.println("DONE.");
 		end = System.currentTimeMillis();
+		System.out.println("DONE.");
 		System.out.println("RegularGreedy time: "  + (end-start) + " milliseconds");
 		System.out.println("RegularGreedy size: " + GDS.size());
 		System.out.println();
 		
+		System.out.print("Starting VRegular Greedy Dom. Set ... ");
 		start = System.currentTimeMillis();
 		List<Integer> VGDS = firstCap.getVRegularGreedyDomSet();
-		System.out.println("DONE.");
 		end = System.currentTimeMillis();
+		System.out.println("DONE.");
 		System.out.println("VRegularGreedy time: "  + (end-start) + " milliseconds");
 		System.out.println("VRegularGreedy size: " + VGDS.size());
 		System.out.println();
@@ -681,6 +689,8 @@ public class CapGraph implements Graph {
 		}
 		System.out.println();*/
 		
+		
+		// egonet and SCC (plan to use for future MDS approx. 
 		/*System.out.println("egonet");
 		start = System.currentTimeMillis();
 		Graph egonet = firstCap.getEgonet(23);
