@@ -378,7 +378,7 @@ public class CapGraph implements Graph {
 			// find the vertex, v, which would cover the most uncovered, white, vertices, 
 			// including itself if it's white 
 			
-			// create and initialize priority queue
+			// create and initialize max priority queue
 			PriorityQueue<CapNode> pq=
 			                new PriorityQueue<CapNode>((a,b) -> b.getWhites().size() - a.getWhites().size());
 			//for (int v : vertices.keySet()) {
@@ -392,7 +392,7 @@ public class CapGraph implements Graph {
 			// add v to the dominant set
 			//System.out.println("adding " + node.getNum() + " to dom set");
 			greedyDomSet.add(node.getNum());
-			// mark that vertex as black and all of its uncovered neighbors as covered, i.e. grey
+			// mark that vertex as black and all of its uncovered white neighbors as covered, i.e. grey
 			node.setColor("black");
 			node.makeWhiteNeighborsGrey();
 			
@@ -407,6 +407,12 @@ public class CapGraph implements Graph {
 		return greedyDomSet;
 	}
 	
+	// TODO:
+	// method3: find largest degree CapNode
+	// mark that node black and white neighbors grey
+	// add neighbors' white neighbors to new max priority queue
+	// based on number of white neighbors
+	// repeat once queue is empty
 	public List<Integer> getVRegularGreedyDomSet() {	
 		//System.out.println("Starting VRegular Greedy Dom Set ... ");
 		
@@ -419,43 +425,27 @@ public class CapGraph implements Graph {
 		
 		List<Integer> greedyDomSet = new ArrayList<Integer>();
 		
-		// find all vertices of degree 1
-		// create and initialize a min heap (i.e. a min priority queue)
+		// create and initialize a max heap
 		PriorityQueue<CapNode> pq=
-				new PriorityQueue<CapNode>((a,b) -> a.getWhites().size() - b.getWhites().size());
-		for (int v : vertices.keySet()) {
+				new PriorityQueue<CapNode>((a,b) -> b.getWhites().size() - a.getWhites().size());
+		for (int v : whiteSet) {
 			pq.add(vertices.get(v));
 		}
 		
-		// pop nodes that have size = 1 bc they only include themselves and 
-		// hopefully will get covered by another node?
-		while (pq.peek().getWhites().size() == 1) {
-			pq.poll();
-		}
-		
-		while (pq.peek().getWhites().size() == 2) {
-			CapNode node = pq.poll();
-			// System.out.println("Looking at node: " + node.getNum());
-			// add neighbor to dominant set and mark as black
-			List<Integer> neighbors = node.getTo();
-			CapNode neighbor = vertices.get(neighbors.get(0));
-			greedyDomSet.add(neighbor.getNum());
-			// mark that vertex as black and all of its uncovered neighbors as covered, i.e. grey
-			neighbor.setColor("black");
-			neighbor.makeWhiteNeighborsGrey();
-					
-			// remove vertex from whiteSet
-			whiteSet.remove(neighbor.getNum());
-					
-			// remove neighbors from whiteSet
-			for (int v: getNeighbors(neighbor.getNum())) {
-				whiteSet.remove(v);
-			}
-		}	
+			
 			
 		// get greedy dominant set
-		List<Integer> greedyDomSet2 = getRegGreedyDOM(whiteSet);
-		greedyDomSet.addAll(greedyDomSet2);
+		//List<Integer> greedyDomSet2 = getRegGreedyDOM(whiteSet);
+		//greedyDomSet.addAll(greedyDomSet2);
+		
+		return greedyDomSet;
+	}
+	
+	// TODO: 
+	// method4: use SCCs to approximate Min Dom Set
+	public List<Integer> getGreedyDomThruSccs() {
+		// initialize an empty dominant set
+		List<Integer> greedyDomSet = new ArrayList<Integer>();
 		
 		return greedyDomSet;
 	}
@@ -470,7 +460,7 @@ public class CapGraph implements Graph {
 		return IDList;
 	}
 	
-	// TO DO: fix this
+	// TODO: fix this or delete
 	// helper method for random1GreedyDomSet
 	public List<Integer> getRandom1GreedyDOM(Set<Integer> whiteSet, List<Integer> randomList)  {
 		// initialize an empty dominant set
@@ -529,7 +519,7 @@ public class CapGraph implements Graph {
 		return greedyDomSet;
 	}
 	
-	// TO DO: fix this
+	// TODO: fix this or delete it
 	public List<Integer> getRandom1GreedyDomSet() {	
 		System.out.println("starting Random 1 Greedy Dom Set");
 		
@@ -547,7 +537,7 @@ public class CapGraph implements Graph {
 		return greedyDomSet;
 	}
 	
-	// TO DO: fix this
+	// TODO: fix or delete this
 	// helper method for random1GreedyDomSet
 	public List<Integer> getRandom2GreedyDOM(Set<Integer> whiteSet, List<Integer> randomList)  {
 		// initialize an empty dominant set
@@ -613,7 +603,7 @@ public class CapGraph implements Graph {
 		return greedyDomSet;
 	}
 	
-	// TO DO: fix this
+	// TODO: fix or delete this
 	public List<Integer> getRandom2GreedyDomSet() {	
 		System.out.println("starting Random 2 Greedy Dom Set");
 		
@@ -687,14 +677,14 @@ public class CapGraph implements Graph {
 		System.out.println("RegularGreedy size: " + GDS.size());
 		System.out.println();
 		
-		System.out.print("Starting VRegular Greedy Dom. Set ... ");
+		/*System.out.print("Starting VRegular Greedy Dom. Set ... ");
 		start = System.currentTimeMillis();
 		List<Integer> VGDS = firstCap.getVRegularGreedyDomSet();
 		end = System.currentTimeMillis();
 		System.out.println("DONE.");
 		System.out.println("VRegularGreedy time: "  + (end-start) + " milliseconds");
 		System.out.println("VRegularGreedy size: " + VGDS.size());
-		System.out.println();
+		System.out.println();*/
 		
 		/*start = System.currentTimeMillis();
 		List<Integer> RG1DS = firstCap.getRandom1GreedyDomSet();
