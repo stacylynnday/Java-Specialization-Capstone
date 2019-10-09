@@ -14,6 +14,8 @@ Finds approximations to the minimum dominating set of a twitter network using di
 
 # TODOs:
 - fix SCC (Strongly Connected Component) method to work for large graphs
+- create methods for repeated code
+- write method3 and method4
 - fix/rewrite 2 random methods for Min Dom Set Approxs
-- write method to check that node ID set is actually an approx to Min Dom Set
+- write method to check that Min Dom Set Approxs are actually Dom Sets
 - more in-depth research!
