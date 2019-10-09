@@ -306,34 +306,8 @@ public class CapGraph implements Graph {
 		return whiteSet;
 	}	
 	
-	// helper method for fastGreedyDomSet
-	public List<Integer> getFastGreedyDOM(Set<Integer> whiteSet)  {
-		// initialize an empty dominant set which will contain black vertices
-		List<Integer> greedyDomSet = new ArrayList<Integer>();
-		
-		// create and initialize priority queue
-		PriorityQueue<CapNode> pq=
-					new PriorityQueue<CapNode>((a,b) -> b.getTo().size() - a.getTo().size());
-		for (int v : whiteSet) {
-			pq.add(vertices.get(v));	
-		}
-			
-		while (!pq.isEmpty()) {
-			// get top node and if white, change to black,
-			// add to greedyDomSet and change all white neighbors to grey
-			CapNode node = pq.poll();
-			
-			if (node.getColor().equals("white")) {
-				node.setColor("black");
-				greedyDomSet.add(node.getNum());
-				
-				node.makeWhiteNeighborsGrey(); 
-					
-			}
-		}
-		return greedyDomSet;
-	}
-	
+	// method #1: creates a max priority queue of CapNodes based on # of outgoing edges
+	// and for each CapNode popped, if it's white, adds it to the Dom Set
 	public List<Integer> getFastGreedyDomSet() {	
 		
 		// mark all vertices as uncovered, i.e. "white"
@@ -348,8 +322,53 @@ public class CapGraph implements Graph {
 		return fastgreedyDomSet;
 	}
 	
-	// helper method for greedyDomSets
-	public List<Integer> getGreedyDOM(Set<Integer> whiteSet)  {
+	// helper method for getFastGreedyDomSet
+	public List<Integer> getFastGreedyDOM(Set<Integer> whiteSet)  {
+		// initialize an empty dominant set which will contain black vertices
+		List<Integer> greedyDomSet = new ArrayList<Integer>();
+			
+		// create and initialize priority queue
+		PriorityQueue<CapNode> pq=
+					new PriorityQueue<CapNode>((a,b) -> b.getTo().size() - a.getTo().size());
+		for (int v : whiteSet) {
+			pq.add(vertices.get(v));	
+		}
+				
+		while (!pq.isEmpty()) {
+			// get top node and if white, change to black,
+			// add to greedyDomSet and change all white neighbors to grey
+			CapNode node = pq.poll();
+				
+			if (node.getColor().equals("white")) {
+				node.setColor("black");
+				greedyDomSet.add(node.getNum());
+					
+				node.makeWhiteNeighborsGrey(); 
+						
+			}
+		}
+		return greedyDomSet;
+	}
+	
+	// method #2: this method constantly recreates the max priority queue of CapNodes 
+	// based on number of white neighbors the CapNode has
+	public List<Integer> getRegularGreedyDomSet() {	
+		//System.out.println("Starting Greedy Dom Set ... ");
+		
+		// mark all vertices as "uncovered", i.e. white
+		initializeAllVerticesToWhite();
+		
+		// create list of white vertices
+		// (initially all vertices are white)
+		Set<Integer> whiteSet = getWhiteSet();
+		
+		// get greedy dominant set
+		List<Integer> greedyDomSet = getRegGreedyDOM(whiteSet);
+		return greedyDomSet;
+	}
+	
+	// helper method for RegularGreedyDomSet
+	public List<Integer> getRegGreedyDOM(Set<Integer> whiteSet)  {
 		// initialize an empty dominant set
 		List<Integer> greedyDomSet = new ArrayList<Integer>();
 		
@@ -362,10 +381,11 @@ public class CapGraph implements Graph {
 			// create and initialize priority queue
 			PriorityQueue<CapNode> pq=
 			                new PriorityQueue<CapNode>((a,b) -> b.getWhites().size() - a.getWhites().size());
-			for (int v : vertices.keySet()) {
-				if (!greedyDomSet.contains(v) && (vertices.get(v).getWhites().size() > 0)) {
-					pq.add(vertices.get(v));
-				}	
+			//for (int v : vertices.keySet()) {
+			for (int v : whiteSet) {
+				//if (!greedyDomSet.contains(v) && (vertices.get(v).getWhites().size() > 0)) {
+				pq.add(vertices.get(v));
+				//}	
 			}
 			CapNode node = pq.poll();
 			
@@ -376,7 +396,7 @@ public class CapGraph implements Graph {
 			node.setColor("black");
 			node.makeWhiteNeighborsGrey();
 			
-			// remove vertex from whiteSet
+			// remove CapNode ID from whiteSet
 			whiteSet.remove(node.getNum());
 			
 			// remove neighbors from whiteSet
@@ -384,21 +404,6 @@ public class CapGraph implements Graph {
 				whiteSet.remove(v);
 			}	
 		}
-		return greedyDomSet;
-	}
-	
-	public List<Integer> getRegularGreedyDomSet() {	
-		//System.out.println("Starting Greedy Dom Set ... ");
-		
-		// mark all vertices as "uncovered", i.e. white
-		initializeAllVerticesToWhite();
-		
-		// create list of white vertices
-		// (initially all vertices are white)
-		Set<Integer> whiteSet = getWhiteSet();
-		
-		// get greedy dominant set
-		List<Integer> greedyDomSet = getGreedyDOM(whiteSet);
 		return greedyDomSet;
 	}
 	
@@ -449,7 +454,7 @@ public class CapGraph implements Graph {
 		}	
 			
 		// get greedy dominant set
-		List<Integer> greedyDomSet2 = getGreedyDOM(whiteSet);
+		List<Integer> greedyDomSet2 = getRegGreedyDOM(whiteSet);
 		greedyDomSet.addAll(greedyDomSet2);
 		
 		return greedyDomSet;
@@ -644,6 +649,26 @@ public class CapGraph implements Graph {
 		System.out.println();
 		
 		
+		/*System.out.println("Creating SCCs (Strongly Connected Components of graph ... ");
+		start = System.currentTimeMillis();
+		List<Graph> sccs = firstCap.getSCCs();
+		end = System.currentTimeMillis();
+		System.out.println("DONE");
+		System.out.println("Time: " + (end-start) + " milliseconds");
+		System.out.println("There are " + sccs.size() + " sccs in the graph");
+		/*for (Graph g : sccs) {
+			System.out.println("new scc graph:");
+			HashMap<Integer, HashSet<Integer>> hs1 = g.exportGraph();
+			for (int key: hs1.keySet()) {
+				System.out.print(key + ": ");
+				for (int x: hs1.get(key)) {
+					System.out.print(x + " ");
+				}
+				System.out.println();
+			}	
+		}*/
+		
+		
 		System.out.print("Starting Fast Greedy Dom. Set ... ");
 		start = System.currentTimeMillis();
 		List<Integer> FGDS = firstCap.getFastGreedyDomSet();
@@ -708,19 +733,5 @@ public class CapGraph implements Graph {
 		}
 		end = System.currentTimeMillis();
 		System.out.println((end-start)/1000);*/
-		/*System.out.println("Creating SCCs of graph");
-		start = System.currentTimeMillis();
-		List<Graph> sccs = firstCap.getSCCs();
-		for (Graph g : sccs) {
-			System.out.println("new scc graph:");
-			HashMap<Integer, HashSet<Integer>> hs1 = g.exportGraph();
-			for (int key: hs1.keySet()) {
-				System.out.print(key + ": ");
-				for (int x: hs1.get(key)) {
-					System.out.print(x + " ");
-				}
-				System.out.println();
-			}
-		}*/
 	}
 }
