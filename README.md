@@ -10,3 +10,10 @@ Finds approximations to the minimum dominating set of a twitter network using di
 - Unzip twitter_combined.txt and put in folder named data (in same dir as java files)
 
 - Run CapGraph.java
+
+
+# TODOs:
+fix SCC (Strongly Connected Component) method to work for large graphs
+fix/rewrite 2 random methods for Min Dom Set Approxs
+write method to check that node ID set is actually an approx to Min Dom Set
+more research!
