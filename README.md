@@ -12,7 +12,7 @@ Finds approximations to the minimum dominating set of a twitter network using di
 - Run CapGraph.java
 
 
-# TODOs:
+- TODOs:
 - fix SCC (Strongly Connected Component) method to work for large graphs
 - create methods for repeated code
 - write method3 and method4
