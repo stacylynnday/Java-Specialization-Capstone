@@ -16,5 +16,5 @@ Finds approximations to the minimum dominating set of a twitter network using di
 - fix SCC (Strongly Connected Component) method to work for large graphs
 - create methods for repeated code
 - write MDS method3 and MDS method4 (are these basically the same methods?)
-- add a MDS using egonets
+- add more MDS nethods
 - more in-depth research!
